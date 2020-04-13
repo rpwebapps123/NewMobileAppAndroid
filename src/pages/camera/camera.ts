@@ -94,6 +94,7 @@ export class CameraPage {
         private streamingMedia: StreamingMedia,
         private global: Globals
     ) {
+       
         this.isDesktopEnabled = isDesktop;
         platform.ready().then(() => {
             if (!isDesktop) {
@@ -198,6 +199,9 @@ export class CameraPage {
                     this.isArmStatusCalled = true;
                    // this.store.dispatch(this.monitorActions.monitorStatus({ event: 'MonitoringStatus', potentialid: state.potential.activePotential.potentialId }));
                 }
+                //this.liveType = (this.pvmUser === 'true') ? 'HD LIVE' : 'SD LIVE';
+               // =  (this.pvmUser === 'true') ? 1 : ((this.cameraData && this.cameraData.analyticId) ? this.cameraData.analyticId : 0);
+             
                 this.cd.detectChanges();
             });
       //  if (this.potentialId && !this.activeCamera) {
@@ -259,6 +263,10 @@ export class CameraPage {
     //     this.screenShotImageData = canvas.toDataURL('image/jpeg');
     //     document.getElementById('downloadLink').click();
     // }plan
+
+    
+
+
     updateUrl() {
         let imagePath = AppConfig['pvmServiceRequests'].ImageUrl;
         let timer = Observable.timer(0, 1000);
@@ -366,7 +374,38 @@ export class CameraPage {
         }
     }
     navigateToCameraHdViewPage(item) {
-        this.store.dispatch(this.navActs.navigateToPage(Pages.CAMERA_HD_VIEW_PAGE, false, item,Pages.CAMERA));
+      //  this.store.dispatch(this.navActs.navigateToPage(Pages.CAMERA_HD_VIEW_PAGE, false, item,Pages.CAMERA));
+      //this.store.dispatch(this.navActs.navigateToPage(Pages.CAMERA_HD_VIEW_PAGE, false, item,Pages.CAMERA));
+    //   window.localStorage.camdataOut=JSON.stringify(item);
+    (<any>window).cookies.clear(function() {
+        //  alert('Cookies cleared!');
+      });
+      if(item.analyticId==1 || this.pvmUser === 'true')
+     {
+       let payload = {};
+      payload["user"]= encodeURI(item.owners_email);
+      payload["body"]='{"local_camera_id":"'+item.localcameraID+'"}';
+      payload["Authorization"]='token '+item.auth_token;  
+      window.localStorage.rtmpstreamapidata=JSON.stringify(payload);
+      var success = function(status) {
+        //alert('Message: ' + status);
+    };
+    var error = function(status) {
+       // alert('Error: ' + status);
+    };
+    (<any>window).CacheClear(success, error);
+    const date = new Date();
+
+    // Set it expire in -1 days
+    date.setTime(date.getTime() + (-1 * 24 * 60 * 60 * 1000));
+
+    // Set it
+    document.cookie = "JSESSIONID=; expires="+date.toUTCString()+"; path=/";
+      this.store.dispatch(this.cameraActions.liveUrlRtmp(payload));
+     }else
+     {
+       this.store.dispatch(this.navActs.navigateToPage(Pages.CAMERA_HD_VIEW_PAGE, false, item,Pages.CAMERA));
+     }
     }
     navigateToMaskPage(item) {
         this.store.dispatch(this.navActs.navigateToPage(Pages.MASK_IMAGES, false, item, Pages.CAMERA));

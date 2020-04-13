@@ -129,7 +129,7 @@ export class UserService extends MainService {
         return this.post(url, JSON.stringify(payload), '', false);
     }
     getArmDisArmInfo(info): Observable<any> {
-        let url = this.buildUrl(this.config.get('pvmServiceRequests').ArmDisarmHistoryDirect, info.payload);
+        let url = this.buildUrl(this.config.get('pvmServiceRequests').ArmDisarmHistoryDirect, info.payload);       
         return this.directGet(url,true);
     }
 
@@ -140,7 +140,7 @@ export class UserService extends MainService {
             url = this.buildUrl(this.config.get('pvmServiceRequests').ArmDisarmStausHistoryDirect, info.payload);
        } else {
             url = this.buildUrl(this.config.get('ivigilServiceRequests').ArmDisarmStausHistoryDirect, info.payload);
-       }
+       }       
         return this.directGet(url, false);
     }
 
@@ -227,8 +227,10 @@ export class UserService extends MainService {
         }
         
     }
+
     getEventLogVideos(eventLogData: any): Observable<any> {
             let url = this.buildUrl(this.config.get('pvmServiceRequests').eventLogVideo, eventLogData);
+            window.localStorage.videourl=url;
             return this.directGet(url,true);
     }
     createTicket({ account, installation, user_name, description, source }): Observable<any> {

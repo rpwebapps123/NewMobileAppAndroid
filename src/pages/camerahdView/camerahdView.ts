@@ -69,6 +69,7 @@ export class CameraHdViewPage {
     private isProcessing: boolean = false;
     private cameraData: any = {};
     currentUrl: any;
+    ptzControls: boolean = false;
     private isSd : boolean;
     private cameraName: string;
     orientation: string;
@@ -79,6 +80,7 @@ export class CameraHdViewPage {
     alertPresented: boolean = false;
     analytics: number;
     interval: any;
+    serverUrlPtz :any;
     constructor(
         private store: Store<IAppState>,
         private navActs: NavigationActions,
@@ -102,7 +104,7 @@ export class CameraHdViewPage {
         private global: Globals
     ) {
         this.isDesktopEnabled = isDesktop;
-         
+        window.localStorage.camspeed=2
         platform.ready().then(() => {
           if (!isDesktop) {
             if (AppConfig.isScreenLock) {
@@ -184,6 +186,9 @@ export class CameraHdViewPage {
                 // TODO
                 this.cameraData = state.navigation ? state.navigation['NavParams'] : null;
                 this.analytics =  (this.pvmUser === 'true') ? 1 : ((this.cameraData && this.cameraData.analyticId) ? this.cameraData.analyticId : 0);
+                this.serverUrlPtz = state.activeSite.url;
+           //     window.localStorage.siteUrl=state.activeSite.url;
+               // this.ptzControls = this.cameraData.ptz
                 if(!this.currentUrl) {
                     if (this.analytics === 3) {
                         let i = 1;
@@ -207,6 +212,14 @@ export class CameraHdViewPage {
                     } else if(this.analytics !== 0) {
                         this.currentUrl = (this.pvmUser === 'true') ? ((this.cameraData && this.cameraData.hdUrl) ? this.cameraData.hdUrl : '') : ((this.cameraData && this.cameraData.sdUrl) ? this.cameraData.sdUrl : '');
                     }
+                }
+                if(this.cameraData.ptz==1)
+                {
+                    this.ptzControls=true;
+                }
+                else
+                {
+                    this.ptzControls=false;
                 }
                 this.cameraName =  (this.pvmUser === 'true') ?((this.cameraData && this.cameraData.Name) ? this.cameraData.Name : '') : ((this.cameraData && this.cameraData.name) ? this.cameraData.name : '');
                 this.connected =  (this.cameraData && this.cameraData.connected) ? this.cameraData.connected : false;
@@ -234,6 +247,67 @@ export class CameraHdViewPage {
         }else{
           this.hdButtonClassName = 'cameraview-hdBt hdpadding';
         }
+  }
+
+  ptzClick(event) {
+   
+    let clsName:any=event.currentTarget.className;
+    clsName=clsName.replace('activated','');
+     if(clsName.trim()=='GOTOPRESET')
+     {
+        window.localStorage.camaction="";
+        window.localStorage.camspeed=2;     
+        var container = document.querySelector(".camControls");
+        var els = container.querySelectorAll('.active'); 
+        for (var i = 0; i < els.length; i++) {
+            els[i].classList.remove('active')   
+          }  
+          document.getElementsByClassName('SPEED_MEDIUM')[0].classList.add('active');
+     }
+
+      window.localStorage.camaction=clsName;
+      let speed:any= window.localStorage.camspeed;
+      let operation:any=window.localStorage.camaction;
+         let ptzActionUrl:any= this.serverUrlPtz.replace(/\/$/, "")+"/CameraService?event=ptz&cameraid="+this.cameraData.cameraId+"&speed="+speed+"&action="+operation;
+          this.store.dispatch(this.cameraActions.ptzActions({
+           ptzUrl : ptzActionUrl
+        }));
+  }
+
+  ptzSpeedClick(event) {
+
+    let clsName:any=event.currentTarget.className;
+    clsName=clsName.replace('activated','');
+    var container = document.querySelector(".camControls");
+    var els = container.querySelectorAll('.active');
+    for (var i = 0; i < els.length; i++) {
+        els[i].classList.remove('active')
+      }
+
+      const classList = event.target.classList;
+      const classes = event.target.className;
+      classes.includes('active') ? classList.remove('active') : classList.add('active');
+      if(clsName='SPEED_LOW')
+      {
+        window.localStorage.camspeed = 1;
+      }
+      else
+      if(clsName='SPEED_MEDIUM')
+      {
+        window.localStorage.camspeed = 2;
+      }
+      else
+      {
+        window.localStorage.camspeed = 3;
+      }
+
+      //window.localStorage.camspeed=clsName;
+      let speed:any= window.localStorage.camspeed;
+      let operation:any=window.localStorage.camaction;
+      let ptzActionUrl:any= this.serverUrlPtz.replace(/\/$/, "")+"/CameraService?event=ptz&cameraid="+this.cameraData.cameraId+"&speed="+speed;//+"&action="+operation;
+      this.store.dispatch(this.cameraActions.ptzActions({
+       ptzUrl : ptzActionUrl
+    }));
   }
 
   toggleVideo() {

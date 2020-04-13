@@ -44,7 +44,7 @@ export class PotentialListMenu {
                 if (state.potential.list) {
                     this.allSites = state.potential.list;
 
-                    this.list = this.allSites;//.slice(0, 20);
+                   this.list = this.allSites;//.slice(0, 20);
                     if(this.list.length <1){
                         this.errorMessage = 'No matching results found';
                     }
@@ -66,10 +66,11 @@ export class PotentialListMenu {
         toast.present();
     }
     private itemSelected(item): void {
-        if (navigator.onLine) {
-            
+         if (navigator.onLine) {
+        //     window.localStorage.listselectSite= JSON.stringify(this.list[item]); 
+        //     window.localStorage.allselectSite= JSON.stringify(this.allSites[item]); 
+             this.store.dispatch(this.potentialActions.activePotentail(this.list[item]));             
             this.store.dispatch(this.navActs.navigateToPage(Pages.HOME));
-             this.store.dispatch(this.potentialActions.activePotentail(this.allSites[item]));
             //this.store.dispatch(this.userActions.potentialListInActive());
           // this.store.dispatch(this.userActions.potentialListActive());
             // if (this.activePotential.potentialId !== item.potentialId) {
@@ -109,7 +110,7 @@ export class PotentialListMenu {
         this.userSubscription.unsubscribe();
     }
     private getItems(): void {
-        if (this.searchString) {
+       // if (this.searchString) {
             setTimeout(() => {
                 this.list = this.allSites.filter((site) => {
                     return (site.siteName.toLowerCase().includes(this.searchString.toLowerCase()));
@@ -117,9 +118,9 @@ export class PotentialListMenu {
                 if(this.list && this.list.length == 0)
                 this.errorMessage = 'No matching sites found';
             }, 100)
-        } else {
-            this.list = this.allSites;//.slice(0, 20);
-        }
+       // } else {
+         //  this.list = this.allSites.slice(0, 20);
+       // }
 
     }
 }

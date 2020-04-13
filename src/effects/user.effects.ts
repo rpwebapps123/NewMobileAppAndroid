@@ -644,6 +644,7 @@ export class UserEffects {
         .ofType(UserActions.POST_EVENT_LOG)
         .mergeMap(action => this.service.getEventLog(action.payload))
         .do(result => {
+            //alert(JSON.stringify(result));
             if (result && result === 'LOG OUT') {
                 window.location.pathname = '/';
                 this.store.dispatch(this.userActions.logout());
@@ -1192,6 +1193,7 @@ export class UserEffects {
                 if (activePotential) {
                     this.store.dispatch(this.potentialActions.activePotentail(activePotential));
                 }
+               
                 storeData.unsubscribe();
             }
         })
